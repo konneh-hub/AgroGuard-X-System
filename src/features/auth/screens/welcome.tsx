@@ -5,9 +5,11 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const theme = useTheme();
 
   return (
     <ThemedView style={styles.container}>
@@ -24,16 +26,28 @@ export default function WelcomeScreen() {
 
       <View style={styles.actions}>
         <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.pressed,
+            { backgroundColor: theme.primary, borderColor: theme.primary },
+          ]}
           onPress={() => router.push("/auth/language")}
         >
-          <ThemedText type="linkPrimary">Get Started</ThemedText>
+          <ThemedText
+            style={{ color: theme.primaryForeground, fontWeight: "600" }}
+          >
+            Get Started
+          </ThemedText>
         </Pressable>
         <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.pressed,
+            { borderColor: theme.primary, backgroundColor: "transparent" },
+          ]}
           onPress={() => router.push("/auth/login")}
         >
-          <ThemedText type="link">Login</ThemedText>
+          <ThemedText style={{ color: theme.primary }}>Login</ThemedText>
         </Pressable>
       </View>
     </ThemedView>

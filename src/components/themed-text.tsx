@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   linkPrimary: {
     lineHeight: 30,
     fontSize: 14,
-    color: "#3c87f7",
+    // color: '#3c87f7', // Removed hardcoded link color
   },
   code: {
     fontFamily: Fonts.mono,

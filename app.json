@@ -39,11 +39,24 @@
             "imageWidth": 76
           }
         }
+      ],
+      [
+        "react-native-maps",
+        {
+          "iosGoogleMapsApiKey": "__ANDROID_IOS_GOOGLE_MAPS_API_KEY__",
+          "androidGoogleMapsApiKey": "__ANDROID_IOS_GOOGLE_MAPS_API_KEY__"
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e8008601-becf-4cc4-81a6-ecfa27b3776d"
+      }
     }
   }
 }

@@ -10,6 +10,11 @@ export default function ProtectedExplore() {
       <ThemedText themeColor="textSecondary">
         Explore your active alerts, device health, and farm performance metrics.
       </ThemedText>
+
+      <ThemedText style={{ marginTop: 24 }}>Farms Module (Stage 2):</ThemedText>
+      <ThemedText themeColor="textSecondary">
+        Routes: /farms/dashboard, /farms/my-farms, /farms/add-farm, /farms/map
+      </ThemedText>
     </ThemedView>
   );
 }

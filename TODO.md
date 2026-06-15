@@ -1,26 +1,62 @@
-# AgroGuard X - Auth Module Task TODO
+# AgroGuard X - Stage TODO
 
-## Plan confirmation
+## Auth (already implemented)
+- [x] AuthProvider + session refresh (SecureStore/localStorage)
+- [x] Auth screens + routing
+- [x] Splash redirect after auth
 
-- Build production-ready **frontend auth module** (screens + guards + state + navigation) for AgroGuard X.
-- No backend mocking; implement request calls as real API layer but keep base URL configurable via env.
+## Stage 2: Farm Registration Module
 
-## Steps
+### Route & Navigation
+- [ ] Create protected farms routes under `src/app/(protected)/farms/*`
+  - [ ] `/farms/dashboard`
+  - [ ] `/farms/my-farms`
+  - [ ] `/farms/add-farm`
+  - [ ] `/farms/edit-farm/:id`
+  - [ ] `/farms/details/:id`
+  - [ ] `/farms/map`
+  - [ ] `/farms/history/:id`
+- [ ] Update `src/app/(protected)/explore.tsx` to provide navigation links into farms
 
-1. Inspect current routing setup (expo-router tabs/layout) and decide integration points.
-2. Create auth feature folder structure under `src/features/auth/`.
-   - ✅ Added initial scaffolding files (types + utils + feature README)
-3. Add AuthContext + token/session management (SecureStore, refresh logic, remember-me).
-4. Implement API service layer + repository pattern (axios instance).
-5. Create all requested screens:
-   - Splash, Welcome, Language Selection
-   - Login, Register
-   - OTP Verification
-   - Forgot Password, Reset Password
-   - Role Selection
-6. Add reusable UI components (inputs, buttons, loading/error).
-7. Add authentication guard + protected route redirection.
-8. Integrate AuthProvider and guarded navigation into `src/app/_layout.tsx` (and/or tab layout).
-9. Ensure TypeScript types compile.
-10. Install any missing npm dependencies.
-11. Run `npm run lint` and `npm start` to verify flow.
+### Feature Scaffolding
+- [ ] Create `src/features/farms/` module with:
+  - [ ] `types/` (Farm, Draft, Boundary, Stats, History)
+  - [ ] `api/` (Supabase client + repository)
+  - [ ] `components/` (form, map editor, image picker, stats cards, draft banner)
+  - [ ] `utils/` (boundary serialization + area + draft schema)
+
+### Farm Data Model
+- [ ] Implement types for required fields:
+  - [ ] Farm Name, Farm Owner, Farm Size
+  - [ ] Crop Type, Soil Type
+  - [ ] Planting Date, GPS Coordinates
+  - [ ] Farm Images
+  - [ ] Farm Boundary polygon
+
+### Offline Draft Saving
+- [ ] Implement draft persistence using `src/lib/storage.ts`
+- [ ] Autosave draft while editing (debounced)
+- [ ] Resume draft capability on Add/Edit screens
+
+### GPS Tracking
+- [ ] Add flow to capture GPS coordinates
+- [ ] Ensure graceful handling of permissions
+
+### Image Upload
+- [ ] Implement offline-friendly image selection
+- [ ] Implement upload to Supabase Storage on “Save Farm”
+
+### Farm Boundary Mapping (Polygon)
+- [ ] Integrate React Native Maps boundary editor (tap-to-add vertices)
+- [ ] Render saved polygon
+- [ ] Compute derived area + stats fallback
+
+### Farm Statistics & History
+- [ ] Implement farm statistics derivation (local)
+- [ ] History UI + backend wiring (repository calls; assumes tables exist)
+
+### Production Readiness
+- [ ] TypeScript compile
+- [ ] `npm run lint`
+- [ ] Smoke test flows: add farm offline draft, boundary mapping, image upload wiring
+

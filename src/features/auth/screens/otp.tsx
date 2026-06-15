@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.two,
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#999",
+    borderColor: "transparent",
     paddingHorizontal: 12,
   },
   button: {
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: Spacing.four,
     borderWidth: 1,
-    borderColor: "#999",
+    borderColor: "transparent",
     marginTop: Spacing.four,
   },
 });

@@ -1,95 +1,135 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { Spacing } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
 
-import { useAuth } from '../contexts/AuthContext';
-
-const schema = z.object({
-  resetToken: z.string().min(4, 'Enter reset token'),
-  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-type FormValues = z.infer<typeof schema>;
-
-export default function ResetPasswordScreen() {
+export default function ForgotPasswordSuccessScreen() {
   const router = useRouter();
-  const { resetPassword } = useAuth();
-
-  const {
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: { resetToken: '', newPassword: '' },
-  });
-
-  const onSubmit = handleSubmit(async (values) => {
-    await resetPassword({ resetToken: values.resetToken, newPassword: values.newPassword });
-    router.replace('/auth/login');
-  });
+  const theme = useTheme();
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>
-        Reset Password
-      </ThemedText>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <ThemedView type="card" style={styles.card}>
+          <View style={styles.iconContainer}>
+            <ThemedText style={styles.icon}>✓</ThemedText>
+          </View>
 
-      <View style={styles.field}>
-        <ThemedText>Reset token</ThemedText>
-        <View style={styles.inputStub} />
-        {errors.resetToken ? (
-          <ThemedText type="small">{errors.resetToken.message}</ThemedText>
-        ) : null}
-      </View>
+          <ThemedText type="title" style={styles.title}>
+            Check your email
+          </ThemedText>
 
-      <View style={styles.field}>
-        <ThemedText>New password</ThemedText>
-        <View style={styles.inputStub} />
-        {errors.newPassword ? (
-          <ThemedText type="small">{errors.newPassword.message}</ThemedText>
-        ) : null}
-      </View>
+          <ThemedText
+            type="small"
+            themeColor="textSecondary"
+            style={styles.message}
+          >
+            We've sent a password reset link to your email address. Click the
+            link in the email to create a new password.
+          </ThemedText>
 
-      <Pressable
-        onPress={onSubmit}
-        disabled={isSubmitting}
-        style={({ pressed }) => [styles.button, pressed && { opacity: 0.9 }]}
-      >
-        <ThemedText type="linkPrimary">{isSubmitting ? 'Resetting...' : 'Reset'}</ThemedText>
-      </Pressable>
+          <ThemedText
+            type="small"
+            themeColor="textSecondary"
+            style={styles.tip}
+          >
+            💡 If you don't see the email, check your spam folder.
+          </ThemedText>
 
-      <Pressable onPress={() => router.back()} style={styles.backLink}>
-        <ThemedText type="link">Back</ThemedText>
-      </Pressable>
+          <View style={styles.actions}>
+            <Pressable
+              onPress={() => router.replace("/auth/login")}
+              style={({ pressed }) => [
+                styles.button,
+                pressed && { opacity: 0.9 },
+                {
+                  backgroundColor: theme.primary,
+                  borderColor: theme.primary,
+                },
+              ]}
+            >
+              <ThemedText
+                style={{
+                  color: theme.primaryForeground,
+                  fontWeight: "600",
+                }}
+              >
+                Back to login
+              </ThemedText>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.replace("/auth/login")}
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                pressed && { opacity: 0.9 },
+              ]}
+            >
+              <ThemedText style={{ color: theme.primary }}>
+                Didn't receive email?
+              </ThemedText>
+            </Pressable>
+          </View>
+        </ThemedView>
+      </ScrollView>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: Spacing.four, justifyContent: 'center' },
-  title: { marginBottom: Spacing.four },
-  field: { marginBottom: Spacing.three, gap: Spacing.two },
-  inputStub: {
-    height: 48,
-    borderRadius: Spacing.two,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#999',
+  container: { flex: 1, padding: Spacing.four, justifyContent: "center" },
+  scroll: { paddingBottom: 40 },
+  card: {
+    maxWidth: 520,
+    width: "100%",
+    alignSelf: "center",
+    padding: Spacing.four,
+    borderRadius: Spacing.four,
+    backgroundColor: "transparent",
+    alignItems: "center",
   },
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#e8f5e9",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: Spacing.four,
+  },
+  icon: {
+    fontSize: 48,
+    color: "#2e7d32",
+  },
+  title: { marginBottom: Spacing.two, textAlign: "center" },
+  message: {
+    textAlign: "center",
+    marginBottom: Spacing.four,
+    lineHeight: 22,
+  },
+  tip: {
+    textAlign: "center",
+    marginBottom: Spacing.four,
+    paddingHorizontal: Spacing.two,
+    lineHeight: 20,
+  },
+  actions: { width: "100%", gap: Spacing.two },
   button: {
     paddingVertical: Spacing.three,
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: Spacing.four,
     borderWidth: 1,
-    borderColor: '#999',
-    marginTop: Spacing.four,
+    width: "100%",
   },
-  backLink: { marginTop: Spacing.three, alignItems: 'center' },
+  secondaryButton: {
+    paddingVertical: Spacing.three,
+    alignItems: "center",
+    borderRadius: Spacing.four,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    width: "100%",
+  },
 });
-

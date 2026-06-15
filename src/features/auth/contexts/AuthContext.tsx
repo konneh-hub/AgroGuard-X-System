@@ -1,4 +1,5 @@
-import * as SecureStore from "expo-secure-store";
+import { deleteItem, getItem, setItem } from "@/lib/storage";
+import { supabase } from "@/lib/supabase";
 import React, {
     createContext,
     useCallback,
@@ -9,7 +10,6 @@ import React, {
     useState,
 } from "react";
 
-import { createAuthRepository } from "@/features/auth/api";
 import type { AuthRole, TokenPair } from "@/features/auth/types";
 import { decodeJwtPayload, isTokenExpired } from "@/features/auth/utils/token";
 
@@ -39,7 +39,7 @@ export type AuthContextValue = {
     district?: string;
     chiefdom?: string;
     country?: string;
-  }) => Promise<{ verificationToken: string }>;
+  }) => Promise<{ signedIn: boolean }>;
   verifyOtp: (params: {
     otp: string;
     verificationToken: string;
@@ -65,8 +65,6 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const repository = useMemo(() => createAuthRepository(), []);
-
   const [user, setUser] = useState<AuthUser | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,38 +75,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadSession = useCallback(async () => {
     try {
-      const access = await SecureStore.getItemAsync(ACCESS_KEY);
-      const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
+      const access = await getItem(ACCESS_KEY);
+      const refresh = await getItem(REFRESH_KEY);
 
       const payload = access ? decodeJwtPayload(access) : null;
       if (access && payload && !isTokenExpired(access)) {
         setUser({ id: payload.sub, role: payload.role });
         setAccessToken(access);
       } else if (refresh) {
-        // Try refreshing.
-        const pair = await repository.refresh(refresh);
-        if (pair?.accessToken) {
-          const nextPayload = decodeJwtPayload(pair.accessToken);
+        const { data, error } = await supabase.auth.refreshSession({
+          refresh_token: refresh,
+        });
+
+        if (error) {
+          console.warn("Supabase refresh session failed", error.message);
+        } else if (data.session) {
+          const nextPayload = decodeJwtPayload(data.session.access_token);
           if (nextPayload) {
             setUser({ id: nextPayload.sub, role: nextPayload.role });
-            setAccessToken(pair.accessToken);
+            setAccessToken(data.session.access_token);
 
-            // Only persist refresh token if remember me is enabled.
-            const persistRefresh = rememberMeEnabled;
-            if (persistRefresh) {
-              await SecureStore.setItemAsync(REFRESH_KEY, pair.refreshToken);
+            if (rememberMeEnabled) {
+              await setItem(REFRESH_KEY, data.session.refresh_token);
+            } else {
+              await deleteItem(REFRESH_KEY);
             }
           }
         }
       }
 
-      // Determine remember-me based on whether refresh token exists in secure storage.
-      const storedRefresh = refresh;
-      setRememberMeEnabled(Boolean(storedRefresh));
+      setRememberMeEnabled(Boolean(refresh));
     } finally {
       setIsLoading(false);
     }
-  }, [repository, rememberMeEnabled]);
+  }, [rememberMeEnabled]);
 
   useEffect(() => {
     loadSession();
@@ -120,32 +120,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     refreshPromiseRef.current = (async () => {
       try {
-        const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
+        const refresh = await getItem(REFRESH_KEY);
         if (!refresh) return null;
 
-        const pair = await repository.refresh(refresh);
-        if (!pair) return null;
+        const { data, error } = await supabase.auth.refreshSession({
+          refresh_token: refresh,
+        });
 
-        const payload = decodeJwtPayload(pair.accessToken);
+        if (error || !data.session) return null;
+
+        const payload = decodeJwtPayload(data.session.access_token);
         if (payload) {
           setUser({ id: payload.sub, role: payload.role });
-          setAccessToken(pair.accessToken);
+          setAccessToken(data.session.access_token);
         }
 
         if (rememberMeEnabled) {
-          await SecureStore.setItemAsync(REFRESH_KEY, pair.refreshToken);
+          await setItem(REFRESH_KEY, data.session.refresh_token);
         } else {
-          await SecureStore.deleteItemAsync(REFRESH_KEY);
+          await deleteItem(REFRESH_KEY);
         }
 
-        return pair;
+        return {
+          accessToken: data.session.access_token,
+          refreshToken: data.session.refresh_token,
+        };
       } finally {
         refreshPromiseRef.current = null;
       }
     })();
 
     return refreshPromiseRef.current;
-  }, [repository, rememberMeEnabled]);
+  }, [rememberMeEnabled]);
 
   const signIn = useCallback(
     async (params: {
@@ -154,27 +160,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       rememberMe?: boolean;
     }) => {
       const { rememberMe = false } = params;
-      const pair = await repository.login({
-        emailOrPhone: params.emailOrPhone,
-        password: params.password,
-      });
+      const isPhone = params.emailOrPhone.trim().startsWith("+");
+      const credentials = isPhone
+        ? { phone: params.emailOrPhone.trim(), password: params.password }
+        : { email: params.emailOrPhone.trim(), password: params.password };
 
-      const payload = decodeJwtPayload(pair.accessToken);
+      const { data, error } = await supabase.auth.signInWithPassword(
+        credentials as any,
+      );
+
+      if (error || !data.session) {
+        throw (
+          error ??
+          new Error("Unable to sign in. Please check your credentials.")
+        );
+      }
+
+      const payload = decodeJwtPayload(data.session.access_token);
       if (!payload) throw new Error("Invalid access token payload");
 
       setUser({ id: payload.sub, role: payload.role });
-      setAccessToken(pair.accessToken);
+      setAccessToken(data.session.access_token);
 
-      await SecureStore.setItemAsync(ACCESS_KEY, pair.accessToken);
+      await setItem(ACCESS_KEY, data.session.access_token);
       setRememberMeEnabled(rememberMe);
 
       if (rememberMe) {
-        await SecureStore.setItemAsync(REFRESH_KEY, pair.refreshToken);
+        await setItem(REFRESH_KEY, data.session.refresh_token);
       } else {
-        await SecureStore.deleteItemAsync(REFRESH_KEY);
+        await deleteItem(REFRESH_KEY);
       }
     },
-    [repository],
+    [],
   );
 
   const signUp = useCallback(
@@ -188,10 +205,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       chiefdom?: string;
       country?: string;
     }) => {
-      const res = await repository.register(params as any);
-      return res as { verificationToken: string };
+      const { data, error } = await supabase.auth.signUp({
+        email: params.email.trim(),
+        password: params.password,
+        options: {
+          data: {
+            fullName: params.fullName,
+            phone: params.phone,
+            role: params.role,
+            district: params.district,
+            chiefdom: params.chiefdom,
+            country: params.country,
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.session) {
+        const payload = decodeJwtPayload(data.session.access_token);
+        if (!payload) throw new Error("Invalid access token payload");
+
+        setUser({ id: payload.sub, role: payload.role });
+        setAccessToken(data.session.access_token);
+        await setItem(ACCESS_KEY, data.session.access_token);
+        await setItem(REFRESH_KEY, data.session.refresh_token);
+
+        return { signedIn: true };
+      }
+
+      return { signedIn: false };
     },
-    [repository],
+    [],
   );
 
   const verifyOtp = useCallback(
@@ -200,34 +247,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       verificationToken: string;
       channel: "email" | "phone";
     }) => {
-      const pair = await repository.verifyOtp(params);
-      const payload = decodeJwtPayload(pair.accessToken);
+      const verifyPayload: Record<string, string> = {
+        token: params.otp,
+        type: params.channel === "email" ? "email" : "sms",
+      };
+
+      if (params.channel === "email") {
+        verifyPayload.email = params.verificationToken;
+      } else {
+        verifyPayload.phone = params.verificationToken;
+      }
+
+      const { data, error } = await supabase.auth.verifyOtp(
+        verifyPayload as any,
+      );
+
+      if (error || !data.session) {
+        throw error ?? new Error("OTP verification failed.");
+      }
+
+      const payload = decodeJwtPayload(data.session.access_token);
       if (!payload) throw new Error("Invalid access token payload");
 
       setUser({ id: payload.sub, role: payload.role });
-      setAccessToken(pair.accessToken);
-
-      await SecureStore.setItemAsync(ACCESS_KEY, pair.accessToken);
+      setAccessToken(data.session.access_token);
+      await setItem(ACCESS_KEY, data.session.access_token);
 
       if (rememberMeEnabled) {
-        await SecureStore.setItemAsync(REFRESH_KEY, pair.refreshToken);
+        await setItem(REFRESH_KEY, data.session.refresh_token);
       }
     },
-    [repository, rememberMeEnabled],
+    [rememberMeEnabled],
   );
 
   const forgotPassword = useCallback(
-    async (params: { emailOrPhone: string }) => {
-      await repository.forgotPassword(params);
+    async (params: { emailOrPhone: string }): Promise<void> => {
+      if (params.emailOrPhone.trim().startsWith("+")) {
+        throw new Error(
+          "Password recovery by phone is not supported. Use an email address.",
+        );
+      }
+
+      const { data, error } = await supabase.auth.resetPasswordForEmail(
+        params.emailOrPhone.trim(),
+      );
+
+      if (error) {
+        throw error;
+      }
     },
-    [repository],
+    [],
   );
 
   const resetPassword = useCallback(
     async (params: { resetToken: string; newPassword: string }) => {
-      await repository.resetPassword(params);
+      throw new Error(
+        "Reset password via token is not supported in-app. Use the reset link received by email.",
+      );
     },
-    [repository],
+    [],
   );
 
   const signOut = useCallback(async () => {
@@ -236,8 +314,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
 
     try {
-      await SecureStore.deleteItemAsync(ACCESS_KEY);
-      await SecureStore.deleteItemAsync(REFRESH_KEY);
+      await supabase.auth.signOut();
+      await deleteItem(ACCESS_KEY);
+      await deleteItem(REFRESH_KEY);
       setRememberMeEnabled(false);
     } finally {
       setIsLoading(false);

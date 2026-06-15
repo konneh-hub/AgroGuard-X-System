@@ -73,15 +73,12 @@ export default function RegisterScreen() {
   ];
 
   const onSubmit = handleSubmit(async (values) => {
-    const res = await signUp(values as any);
-    // Backend should send verification token; route to OTP screen with token.
-    const token = res?.verificationToken;
-    if (token) {
-      router.replace(
-        `/auth/otp?verificationToken=${encodeURIComponent(token)}`,
-      );
+    const result = await signUp(values as any);
+
+    if (result.signedIn) {
+      router.replace("/explore");
     } else {
-      router.replace("/auth/otp");
+      router.replace("/auth/login");
     }
   });
 
@@ -95,137 +92,143 @@ export default function RegisterScreen() {
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
         >
-          <ThemedText type="title" style={styles.title}>
-            Create Account
-          </ThemedText>
-
-          <View style={styles.field}>
-            <ThemedText>Full name</ThemedText>
-            <TextInput
-              value={watch("fullName")}
-              onChangeText={(t) => setValue("fullName", t)}
-              style={[styles.input, { borderColor: theme.input }]}
-              placeholder="Full name"
-            />
-            {errors.fullName ? (
-              <ThemedText type="small">{errors.fullName.message}</ThemedText>
-            ) : null}
-          </View>
-
-          <View style={styles.field}>
-            <ThemedText>Email</ThemedText>
-            <TextInput
-              value={watch("email")}
-              onChangeText={(t) => setValue("email", t)}
-              style={[styles.input, { borderColor: theme.input }]}
-              keyboardType="email-address"
-              placeholder="you@example.com"
-              autoCapitalize="none"
-            />
-            {errors.email ? (
-              <ThemedText type="small">{errors.email.message}</ThemedText>
-            ) : null}
-          </View>
-
-          <View style={styles.field}>
-            <ThemedText>Phone</ThemedText>
-            <TextInput
-              value={watch("phone")}
-              onChangeText={(t) => setValue("phone", t)}
-              style={[styles.input, { borderColor: theme.input }]}
-              keyboardType="phone-pad"
-              placeholder="+232 ..."
-            />
-            {errors.phone ? (
-              <ThemedText type="small">{errors.phone.message}</ThemedText>
-            ) : null}
-          </View>
-
-          <View style={styles.field}>
-            <ThemedText>Password</ThemedText>
-            <TextInput
-              value={watch("password")}
-              onChangeText={(t) => setValue("password", t)}
-              style={[styles.input, { borderColor: theme.input }]}
-              placeholder="Password"
-              secureTextEntry
-            />
-            {errors.password ? (
-              <ThemedText type="small">{errors.password.message}</ThemedText>
-            ) : null}
-          </View>
-
-          <View style={styles.field}>
-            <ThemedText>Role</ThemedText>
-            <View style={[styles.pickerWrapper, { borderColor: theme.input }]}>
-              <Picker
-                selectedValue={watch("role")}
-                onValueChange={(v: string) => setValue("role", v as any)}
-                mode="dropdown"
-              >
-                {ROLE_OPTIONS.map((r) => (
-                  <Picker.Item label={r.label} value={r.key} key={r.key} />
-                ))}
-              </Picker>
-            </View>
-          </View>
-
-          <View style={styles.field}>
-            <ThemedText>District</ThemedText>
-            <TextInput
-              value={watch("district")}
-              onChangeText={(t) => setValue("district", t)}
-              style={[styles.input, { borderColor: theme.input }]}
-              placeholder="District"
-            />
-            {errors.district ? (
-              <ThemedText type="small">{errors.district.message}</ThemedText>
-            ) : null}
-          </View>
-
-          <View style={styles.field}>
-            <ThemedText>Chiefdom</ThemedText>
-            <TextInput
-              value={watch("chiefdom")}
-              onChangeText={(t) => setValue("chiefdom", t)}
-              style={[styles.input, { borderColor: theme.input }]}
-              placeholder="Chiefdom"
-            />
-            {errors.chiefdom ? (
-              <ThemedText type="small">{errors.chiefdom.message}</ThemedText>
-            ) : null}
-          </View>
-
-          <View style={styles.field}>
-            <ThemedText>Country</ThemedText>
-            <TextInput
-              value={watch("country")}
-              onChangeText={(t) => setValue("country", t)}
-              style={[styles.input, { borderColor: theme.input }]}
-              placeholder="Country"
-            />
-            {errors.country ? (
-              <ThemedText type="small">{errors.country.message}</ThemedText>
-            ) : null}
-          </View>
-
-          <Pressable
-            onPress={onSubmit}
-            disabled={isSubmitting}
-            style={({ pressed }) => [
-              styles.button,
-              pressed && { opacity: 0.9 },
-              { borderColor: theme.input },
-            ]}
-          >
-            <ThemedText type="linkPrimary">
-              {isSubmitting ? "Creating..." : "Register"}
+          <ThemedView type="card" style={styles.card}>
+            <ThemedText type="title" style={styles.title}>
+              Create Account
             </ThemedText>
-          </Pressable>
 
-          <Pressable onPress={() => router.back()} style={styles.backLink}>
-            <ThemedText type="link">Back</ThemedText>
-          </Pressable>
+            <View style={styles.field}>
+              <ThemedText>Full name</ThemedText>
+              <TextInput
+                value={watch("fullName")}
+                onChangeText={(t) => setValue("fullName", t)}
+                style={[styles.input, { borderColor: theme.input }]}
+                placeholder="Full name"
+              />
+              {errors.fullName ? (
+                <ThemedText type="small">{errors.fullName.message}</ThemedText>
+              ) : null}
+            </View>
+
+            <View style={styles.field}>
+              <ThemedText>Email</ThemedText>
+              <TextInput
+                value={watch("email")}
+                onChangeText={(t) => setValue("email", t)}
+                style={[styles.input, { borderColor: theme.input }]}
+                keyboardType="email-address"
+                placeholder="you@example.com"
+                autoCapitalize="none"
+              />
+              {errors.email ? (
+                <ThemedText type="small">{errors.email.message}</ThemedText>
+              ) : null}
+            </View>
+
+            <View style={styles.field}>
+              <ThemedText>Phone</ThemedText>
+              <TextInput
+                value={watch("phone")}
+                onChangeText={(t) => setValue("phone", t)}
+                style={[styles.input, { borderColor: theme.input }]}
+                keyboardType="phone-pad"
+                placeholder="+232 ..."
+              />
+              {errors.phone ? (
+                <ThemedText type="small">{errors.phone.message}</ThemedText>
+              ) : null}
+            </View>
+
+            <View style={styles.field}>
+              <ThemedText>Password</ThemedText>
+              <TextInput
+                value={watch("password")}
+                onChangeText={(t) => setValue("password", t)}
+                style={[styles.input, { borderColor: theme.input }]}
+                placeholder="Password"
+                secureTextEntry
+              />
+              {errors.password ? (
+                <ThemedText type="small">{errors.password.message}</ThemedText>
+              ) : null}
+            </View>
+
+            <View style={styles.field}>
+              <ThemedText>Role</ThemedText>
+              <View
+                style={[styles.pickerWrapper, { borderColor: theme.input }]}
+              >
+                <Picker
+                  selectedValue={watch("role")}
+                  onValueChange={(v: string) => setValue("role", v as any)}
+                  mode="dropdown"
+                >
+                  {ROLE_OPTIONS.map((r) => (
+                    <Picker.Item label={r.label} value={r.key} key={r.key} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+
+            <View style={styles.field}>
+              <ThemedText>District</ThemedText>
+              <TextInput
+                value={watch("district")}
+                onChangeText={(t) => setValue("district", t)}
+                style={[styles.input, { borderColor: theme.input }]}
+                placeholder="District"
+              />
+              {errors.district ? (
+                <ThemedText type="small">{errors.district.message}</ThemedText>
+              ) : null}
+            </View>
+
+            <View style={styles.field}>
+              <ThemedText>Chiefdom</ThemedText>
+              <TextInput
+                value={watch("chiefdom")}
+                onChangeText={(t) => setValue("chiefdom", t)}
+                style={[styles.input, { borderColor: theme.input }]}
+                placeholder="Chiefdom"
+              />
+              {errors.chiefdom ? (
+                <ThemedText type="small">{errors.chiefdom.message}</ThemedText>
+              ) : null}
+            </View>
+
+            <View style={styles.field}>
+              <ThemedText>Country</ThemedText>
+              <TextInput
+                value={watch("country")}
+                onChangeText={(t) => setValue("country", t)}
+                style={[styles.input, { borderColor: theme.input }]}
+                placeholder="Country"
+              />
+              {errors.country ? (
+                <ThemedText type="small">{errors.country.message}</ThemedText>
+              ) : null}
+            </View>
+
+            <Pressable
+              onPress={onSubmit}
+              disabled={isSubmitting}
+              style={({ pressed }) => [
+                styles.button,
+                pressed && { opacity: 0.9 },
+                { borderColor: theme.primary, backgroundColor: theme.primary },
+              ]}
+            >
+              <ThemedText
+                style={{ color: theme.primaryForeground, fontWeight: "600" }}
+              >
+                {isSubmitting ? "Creating..." : "Register"}
+              </ThemedText>
+            </Pressable>
+
+            <Pressable onPress={() => router.back()} style={styles.backLink}>
+              <ThemedText type="link">Back</ThemedText>
+            </Pressable>
+          </ThemedView>
         </ScrollView>
       </KeyboardAvoidingView>
     </ThemedView>
@@ -241,8 +244,16 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.two,
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#999",
+    borderColor: "transparent",
     paddingHorizontal: 12,
+  },
+  card: {
+    maxWidth: 520,
+    width: "100%",
+    alignSelf: "center",
+    padding: Spacing.four,
+    borderRadius: Spacing.four,
+    backgroundColor: "transparent",
   },
   roleList: { flexDirection: "row", flexWrap: "wrap", gap: Spacing.two },
   roleItem: {
@@ -260,8 +271,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: Spacing.four,
     borderWidth: 1,
-    borderColor: "#999",
+    borderColor: "transparent",
     marginTop: Spacing.four,
+    width: "100%",
   },
   backLink: { marginTop: Spacing.three, alignItems: "center" },
   scroll: { paddingBottom: 40 },
