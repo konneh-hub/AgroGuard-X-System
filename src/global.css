@@ -6,4 +6,55 @@
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
+
+  /* App color tokens (dark theme) */
+  --background: 218 52% 10%; /* hsl values stored as space-separated for HSL usage */
+  --background-hex: #0d1a2e;
+  --foreground-hex: #e8edf5;
+  --card-hex: #112038;
+  --card-foreground-hex: #e8edf5;
+  --popover-hex: #0f1c30;
+  --muted-hex: #1c2e47;
+  --muted-foreground-hex: #7f93ab;
+  --border-hex: #233247;
+  --input-hex: #233247;
+
+  --primary-hex: #2e7d32;
+  --primary-foreground-hex: #ffffff;
+  --secondary-hex: #e87b0a;
+  --secondary-foreground-hex: #ffffff;
+  --accent-hex: #f5c116;
+  --accent-foreground-hex: #0d1a2e;
+  --ring-hex: #388e3c;
+
+  --sidebar-background-hex: #0a1626;
+  --sidebar-foreground-hex: #d4dce9;
+  --sidebar-primary-hex: #2e7d32;
+  --sidebar-accent-hex: #192e47;
+  --sidebar-border-hex: #1c2a3d;
+
+  --chart-1-hex: #388e3c;
+  --chart-2-hex: #f08010;
+  --chart-3-hex: #f5c116;
+  --chart-4-hex: #2b9db8;
+  --chart-5-hex: #d63b3b;
+
+  --destructive-hex: #cc2929;
+  --destructive-foreground-hex: #ffffff;
+
+  /* Convenience vars for CSS use */
+  --bg: var(--background-hex);
+  --fg: var(--foreground-hex);
+  --card: var(--card-hex);
+  --muted: var(--muted-hex);
+  --muted-fg: var(--muted-foreground-hex);
+  --border: var(--border-hex);
+  --primary: var(--primary-hex);
+  --accent: var(--accent-hex);
+}
+
+html, body, #root {
+  background: var(--bg);
+  color: var(--fg);
+}
 }

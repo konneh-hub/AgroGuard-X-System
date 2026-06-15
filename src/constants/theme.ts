@@ -3,24 +3,76 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
-import '@/global.css';
+import "@/global.css";
 
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: "#000000",
+    background: "#ffffff",
+    backgroundElement: "#F0F0F3",
+    backgroundSelected: "#E0E1E6",
+    textSecondary: "#60646C",
+    card: "#ffffff",
+    cardForeground: "#000000",
+    popover: "#ffffff",
+    muted: "#f0f2f5",
+    mutedForeground: "#9098a3",
+    border: "#e5e7eb",
+    input: "#e5e7eb",
+    primary: "#2e7d32",
+    primaryForeground: "#ffffff",
+    secondary: "#e87b0a",
+    secondaryForeground: "#ffffff",
+    accent: "#f5c116",
+    accentForeground: "#0d1a2e",
+    ring: "#388e3c",
+    sidebarBackground: "#f8fafc",
+    sidebarForeground: "#1f2937",
+    sidebarPrimary: "#2e7d32",
+    sidebarAccent: "#f1f5f9",
+    sidebarBorder: "#e5e7eb",
+    chart1: "#388e3c",
+    chart2: "#f08010",
+    chart3: "#f5c116",
+    chart4: "#2b9db8",
+    chart5: "#d63b3b",
+    destructive: "#cc2929",
+    destructiveForeground: "#ffffff",
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: "#e8edf5",
+    background: "#0d1a2e",
+    backgroundElement: "#112038",
+    backgroundSelected: "#1c2e47",
+    textSecondary: "#7f93ab",
+    card: "#112038",
+    cardForeground: "#e8edf5",
+    popover: "#0f1c30",
+    muted: "#1c2e47",
+    mutedForeground: "#7f93ab",
+    border: "#233247",
+    input: "#233247",
+    primary: "#2e7d32",
+    primaryForeground: "#ffffff",
+    secondary: "#e87b0a",
+    secondaryForeground: "#ffffff",
+    accent: "#f5c116",
+    accentForeground: "#0d1a2e",
+    ring: "#388e3c",
+    sidebarBackground: "#0a1626",
+    sidebarForeground: "#d4dce9",
+    sidebarPrimary: "#2e7d32",
+    sidebarAccent: "#192e47",
+    sidebarBorder: "#1c2a3d",
+    chart1: "#388e3c",
+    chart2: "#f08010",
+    chart3: "#f5c116",
+    chart4: "#2b9db8",
+    chart5: "#d63b3b",
+    destructive: "#cc2929",
+    destructiveForeground: "#ffffff",
   },
 } as const;
 
@@ -29,25 +81,25 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
+    sans: "system-ui",
     /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
+    serif: "ui-serif",
     /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
+    rounded: "ui-rounded",
     /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+    mono: "ui-monospace",
   },
   default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+    sans: "normal",
+    serif: "serif",
+    rounded: "normal",
+    mono: "monospace",
   },
   web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
+    sans: "var(--font-display)",
+    serif: "var(--font-serif)",
+    rounded: "var(--font-rounded)",
+    mono: "var(--font-mono)",
   },
 });
 

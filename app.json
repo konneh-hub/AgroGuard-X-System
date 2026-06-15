@@ -1,19 +1,19 @@
 {
   "expo": {
-    "name": "AgrouGuard-X",
-    "slug": "AgrouGuard-X",
+    "name": "AgroGuard X",
+    "slug": "agroguard-x",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "agrouguardx",
+    "icon": "./assets/images/agroguardx.jpeg",
+    "scheme": "agroguardx",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/agroguardx.jpeg"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "foregroundImage": "./assets/images/agroguardx.jpeg",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -23,6 +23,11 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+    "splash": {
+      "image": "./assets/images/agroguardx.jpeg",
+      "resizeMode": "contain",
+      "backgroundColor": "#208AEF"
+    },
     "plugins": [
       "expo-router",
       [
@@ -30,7 +35,7 @@
         {
           "backgroundColor": "#208AEF",
           "android": {
-            "image": "./assets/images/splash-icon.png",
+            "image": "./assets/images/agroguardx.jpeg",
             "imageWidth": 76
           }
         }
